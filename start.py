@@ -26,13 +26,14 @@ for kit, data in config["kits"].items():
     networks.append(network)
     domain = data.get("domain")
     port = data.get("port", 80)
+    internal_host = data.get("internal-host", f"{kit}-mediawiki-web-1")
     nginx_config += f"""
     server {{
         listen {port};
         server_name {domain};
     
         location / {{
-            proxy_pass http://mediawiki-web:8080;
+            proxy_pass http://{internal_host}:8080;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }}
@@ -45,7 +46,7 @@ with open("nginx/nginx.conf", "w") as file:
 command = [
     "docker",
     "run",
-    #"-d",
+    # "-d",
     "--name",
     "mw-orchestrator-nginx",
     "-p",
