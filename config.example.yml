@@ -1,0 +1,11 @@
+kits:
+  # Must match the docker compose project name
+  main:
+    # The local domain the server should listen on.
+    # If you're not using .localhost, you need to modify /etc/hosts
+    domain: main.localhost
+    # (Optional) The port to listen on.
+    port: 80
+    # (Optional) The name of the docker network.
+    # Defaults to {kit}_mw
+    network: main_mw
