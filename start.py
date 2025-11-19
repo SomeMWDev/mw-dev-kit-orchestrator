@@ -59,8 +59,8 @@ for network in networks:
 
 command.append("nginx:latest")
 
-# stop old container if present
+# stop and remove old container if present
 subprocess.run(["docker", "stop", "mw-orchestrator-nginx"])
 subprocess.run(["docker", "rm", "mw-orchestrator-nginx"])
-# run docker compose up
+# start new container
 subprocess.run(command, check=True)
