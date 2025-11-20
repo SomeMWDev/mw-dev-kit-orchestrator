@@ -5,8 +5,6 @@ services:
     networks: [ orchestrator-net ]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-      - "8000:8000" # TODO remove
     develop:
       # TODO remove this
       # Create a `watch` configuration to update the app
