@@ -1,3 +1,5 @@
+# The domain the dashboard should be exposed on.
+dashboard_domain: wikis.localhost
 kits:
   # Must match the docker compose project name
   main:

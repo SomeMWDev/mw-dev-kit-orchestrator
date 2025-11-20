@@ -5,6 +5,7 @@ services:
     networks: [ orchestrator-net ]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./nginx/nginx.conf:/app/nginx/nginx.conf
     develop:
       # TODO remove this
       # Create a `watch` configuration to update the app

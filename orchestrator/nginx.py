@@ -2,31 +2,43 @@ from orchestrator.config import get_kits
 
 
 def build_nginx_config(config) -> str:
-    nginx_config = """
-    server {
-        listen 80 default_server;
-        server_name _;
-    
-        return 404;
-    }
-    """
+    # TODO allow disabling if value is empty
+    dashboard_domain = config.get("dashboard_domain", "wikis.localhost")
+    nginx_config = f"""
+server {{
+    listen 80 default_server;
+    server_name _;
 
+    return 404;
+}}
+
+server {{
+    listen 80;
+    server_name {dashboard_domain};
+    
+    location / {{
+        proxy_pass http://mw-orchestrator:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }}
+}}
+    """
 
     for kit, data in get_kits(config):
         domain = data.get("domain")
         port = data.get("port", 80)
         internal_host = data.get("internal-host", f"{kit}-mediawiki-web-1")
         nginx_config += f"""
-        server {{
-            listen {port};
-            server_name {domain};
-        
-            location / {{
-                proxy_pass http://{internal_host}:8080;
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-            }}
-        }}
+server {{
+    listen {port};
+    server_name {domain};
+
+    location / {{
+        proxy_pass http://{internal_host}:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }}
+}}
         """
 
     return nginx_config

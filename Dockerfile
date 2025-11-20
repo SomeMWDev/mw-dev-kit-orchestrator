@@ -15,7 +15,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 ENTRYPOINT []
 
-HEALTHCHECK CMD python -c "import urllib.request, sys; \
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=5s CMD python -c "import urllib.request, sys; \
     sys.exit(0) if urllib.request.urlopen('http://localhost:8000/health').getcode() == 200 else sys.exit(1)"
 
 CMD ["fastapi", "dev", "--host", "0.0.0.0", "orchestrator"]
