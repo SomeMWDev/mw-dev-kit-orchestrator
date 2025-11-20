@@ -2,7 +2,7 @@ services:
   orchestrator:
     container_name: mw-orchestrator
     build: .
-    networks: [ orchestrator-net ]
+    networks: [ mw-orchestrator-internal ]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./nginx/:/app/nginx/
@@ -11,7 +11,7 @@ services:
     image: nginx:latest
     container_name: mw-orchestrator-nginx
     ports: [ "80:80" ]
-    networks: [ orchestrator-net ]
+    networks: [ mw-orchestrator-internal ]
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/:ro
     depends_on:
@@ -19,4 +19,4 @@ services:
         condition: service_healthy
 
 networks:
-  orchestrator-net:
+  mw-orchestrator-internal:

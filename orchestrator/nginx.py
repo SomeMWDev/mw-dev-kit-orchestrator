@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from docker import DockerClient
+from docker.models.containers import Container
+from docker.models.networks import Network
 
 from orchestrator.config import get_kits
 
@@ -54,21 +56,34 @@ server {{
     }}
 }}"""
 
-def build_upstreams(config, docker_client: DockerClient) -> dict[str, str]:
+def build_upstreams(config, docker_client: DockerClient, docker_network: Network) -> dict[str, str]:
     upstreams = {}
     for kit_name, data in get_kits(config):
         is_online = data.get("connect-initially", False)
-        if not is_online:
-            # TODO don't recompute this - also the host doesn't have to be the container name
-            internal_host = data.get("internal-host", f"{kit_name}-mediawiki-web-1")
-            status = docker_client.containers.get(internal_host).status
-            is_online = status in ["running", "healthy"]
-            print(f"Container {internal_host} is {is_online}")
+        # TODO don't recompute this - also the host doesn't have to be the container name
+        internal_host = data.get("internal-host", f"{kit_name}-mediawiki-web-1")
+        container = None
+        try:
+            container = docker_client.containers.get(internal_host)
+        except Exception as e:
+            is_online = False
+            print(f"{internal_host} is not online: {e}")
+        if container and not is_online:
+            is_online = container.status in ["running", "healthy"]
+            print(f"Container {internal_host} is {container.status}")
         upstreams[kit_name] = build_upstream(kit_name, data, is_online)
+        if is_online:
+            # connect container to the orchestrator network
+            try:
+                docker_network.connect(container)
+            except:
+                print(f"Failed to connect {internal_host} - is it already in the network?")
 
     return upstreams
 
-def regenerate_nginx_config(config, docker_client: DockerClient):
+
+def regenerate_nginx_config(config, docker_client: DockerClient, docker_network: Network, nginx_container: Container,
+                            reload: bool):
     conf_folder = Path("nginx/conf.d")
     for file in conf_folder.iterdir():
         if file.is_file():
@@ -77,10 +92,14 @@ def regenerate_nginx_config(config, docker_client: DockerClient):
     with open(conf_folder / "base.conf", "w") as file:
         file.write(build_nginx_config(config))
 
-    upstreams = build_upstreams(config, docker_client)
+    upstreams = build_upstreams(config, docker_client, docker_network)
     for upstream_name, upstream in upstreams.items():
         with open(conf_folder / f"{upstream_name}.conf", "w") as file:
             file.write(upstream)
+
+    if reload:
+        nginx_container.exec_run(["nginx", "-s", "reload"])
+
 
 def get_networks(config) -> list[str]:
     networks = []
