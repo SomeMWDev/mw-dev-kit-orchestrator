@@ -1,6 +1,6 @@
 import docker
 
-from orchestrator import get_networks
+from orchestrator.nginx import get_networks
 
 
 def initialize_networks(config):

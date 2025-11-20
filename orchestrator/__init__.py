@@ -2,7 +2,7 @@ from fastapi import FastAPI, Response, status
 from starlette.staticfiles import StaticFiles
 
 from orchestrator.config import load_config
-from orchestrator.nginx import get_networks, regenerate_nginx_config
+from orchestrator.nginx import regenerate_nginx_config
 from orchestrator.utils import initialize_networks
 
 app = FastAPI()
