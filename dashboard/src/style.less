@@ -1,0 +1,45 @@
+@import '@wikimedia/codex/dist/codex.style.css';
+@import ( reference ) '@wikimedia/codex-design-tokens/theme-wikimedia-ui.less';
+
+:root {
+  font-family: @font-family-system-sans;
+  line-height: @line-height-medium;
+  font-weight: @font-weight-normal;
+
+  color: @color-base;
+  background-color: @background-color-base;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  height: 100%;
+}
+
+#app {
+  width: 100%;
+}
+
+#content {
+  max-width: 75%;
+  margin: 0 auto;
+}
+
+@media (max-width: @max-width-breakpoint-tablet) {
+  #content {
+    max-width: 95%;
+  }
+}
+
+a {
+  text-decoration: @text-decoration-none;
+  color: @color-link;
+
+  &:hover {
+    color: @color-link--hover;
+  }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: @font-weight-semi-bold;
+}
