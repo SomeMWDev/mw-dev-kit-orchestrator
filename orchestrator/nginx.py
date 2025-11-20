@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import docker.errors
 from docker import DockerClient
 from docker.models.containers import Container
 from docker.models.networks import Network
@@ -65,7 +66,7 @@ def build_upstreams(config, docker_client: DockerClient, docker_network: Network
         container = None
         try:
             container = docker_client.containers.get(internal_host)
-        except Exception as e:
+        except docker.errors.NotFound as e:
             is_online = False
             print(f"{internal_host} is not online: {e}")
         if container and not is_online:
@@ -76,7 +77,7 @@ def build_upstreams(config, docker_client: DockerClient, docker_network: Network
             # connect container to the orchestrator network
             try:
                 docker_network.connect(container)
-            except:
+            except docker.errors.APIError:
                 print(f"Failed to connect {internal_host} - is it already in the network?")
 
     return upstreams

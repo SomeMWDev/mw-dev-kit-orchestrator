@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 import docker
+import docker.errors
 from fastapi import FastAPI
 from starlette.staticfiles import StaticFiles
 
@@ -14,7 +15,7 @@ async def lifespan(app: FastAPI):
     app.docker_client = docker.from_env()
     try:
         app.docker_network = app.docker_client.networks.get("mw-orchestrator-net")
-    except:
+    except docker.errors.APIError:
         app.docker_network = app.docker_client.networks.create("mw-orchestrator-net")
 
     app.nginx_container = app.docker_client.containers.get("mw-orchestrator-nginx")
