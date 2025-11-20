@@ -7,13 +7,13 @@ from orchestrator.config import get_kits
 
 def build_nginx_config(config) -> str:
     dashboard_domain = config.get("dashboard_domain", "wikis.localhost")
-    conf = f"""
-server {{
+    conf = """
+server {
     listen 80 default_server;
     server_name _;
 
     return 404;
-}}"""
+}"""
     if dashboard_domain != "":
         conf += f"""
 server {{
