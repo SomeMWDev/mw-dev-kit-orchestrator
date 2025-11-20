@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
         docker_client=docker_client,
         docker_network=create_docker_network(docker_client),
         docker_nginx_container=docker_client.containers.get("mw-orchestrator-nginx"),
-        kits=load_kits(conf)
+        kits=load_kits(conf, docker_client)
     )
 
     state.docker_network.connect(state.docker_nginx_container)

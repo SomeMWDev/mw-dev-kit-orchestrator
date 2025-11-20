@@ -1,9 +1,20 @@
 from dataclasses import dataclass
+from enum import Enum
 
 from docker import DockerClient
 from docker.models.containers import Container
 from docker.models.networks import Network
 
+class KitStatus(Enum):
+    UNKNOWN = "unknown"
+
+    CREATED = "created"
+    RUNNING = "running"
+    HEALTHY = "healthy"
+    RESTARTING = "restarting"
+    EXITED = "exited"
+    PAUSED = "paused"
+    DEAD = "dead"
 
 @dataclass
 class MWDevKit:
@@ -13,6 +24,7 @@ class MWDevKit:
     web_container: str
     # TODO can we remove this?
     connect_initially: bool
+    status: KitStatus
 
 
 @dataclass

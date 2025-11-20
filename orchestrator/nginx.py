@@ -2,7 +2,7 @@ from pathlib import Path
 
 import docker.errors
 
-from orchestrator.models import MWDevKit, OrchestratorState
+from orchestrator.models import MWDevKit, OrchestratorState, KitStatus
 
 
 def build_nginx_config(state: OrchestratorState) -> str:
@@ -58,18 +58,10 @@ server {{
 def build_upstreams(state: OrchestratorState) -> dict[str, str]:
     upstreams = {}
     for kit in state.kits.values():
-        is_online = kit.connect_initially
-        container = None
-        try:
-            container = state.docker_client.containers.get(kit.web_container)
-        except docker.errors.NotFound as e:
-            is_online = False
-            print(f"{kit.web_container} is not online: {e}")
-        if container and not is_online:
-            is_online = container.status in ["running", "healthy"]
-            print(f"Container {kit.web_container} is {container.status}")
+        is_online = kit.connect_initially or kit.status in [KitStatus.RUNNING, KitStatus.HEALTHY]
         upstreams[kit.name] = build_upstream(kit, is_online)
         if is_online:
+            container = state.docker_client.containers.get(kit.web_container)
             # connect container to the orchestrator network
             try:
                 state.docker_network.connect(container)
