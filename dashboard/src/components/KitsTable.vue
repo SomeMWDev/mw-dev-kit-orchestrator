@@ -20,6 +20,7 @@ onMounted(async () => {
           { id: 'domain', label: 'Domain' },
           { id: 'port', label: 'Port' },
           { id: 'web_container', label: 'Web Container' },
+          { id: 'status', label: 'Status' },
       ]"
       :data="kits"
       :use-row-headers="true"
