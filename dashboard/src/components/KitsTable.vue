@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {CdxTable} from "@wikimedia/codex";
+import {CdxInfoChip, CdxTable} from "@wikimedia/codex";
 import {onMounted, ref} from "vue";
 import axios from "axios";
 
@@ -10,6 +10,23 @@ onMounted(async () => {
   const res = await axios.get("http://wikis.localhost/api/kits")
   kits.value = Object.values(res.data)
 })
+
+const getStatus = (status: string) => {
+  switch (status) {
+    case "running":
+    case "healthy":
+      return "success"
+    case "created":
+    case "restarting":
+      return "notice"
+    case "paused":
+      return "warning"
+    case "dead":
+    case "exited":
+      return "error"
+  }
+}
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 </script>
 
 <template>
@@ -27,6 +44,10 @@ onMounted(async () => {
   >
     <template #item-domain="{ item }">
       <a :href="`http://${item}`" target="_blank" rel="nofollow noreferrer">{{item}}</a>
+    </template>
+
+    <template #item-status="{ item }">
+      <cdx-info-chip :status="getStatus(item)">{{capitalize(item)}}</cdx-info-chip>
     </template>
   </cdx-table>
 </template>
