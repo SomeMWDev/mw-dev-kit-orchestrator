@@ -19,8 +19,14 @@ server {{
     listen 80;
     server_name {state.dashboard_domain};
     
-    location / {{
-        proxy_pass http://mw-orchestrator:8000;
+    #location / {{
+    #    proxy_pass http://mw-orchestrator-dash:5173;
+    #    proxy_set_header Host $host;
+    #    proxy_set_header X-Real-IP $remote_addr;
+    #}}
+    
+    location /api/ {{
+        proxy_pass http://mw-orchestrator:8000/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }}
