@@ -5,32 +5,15 @@ services:
     networks: [ orchestrator-net ]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./nginx/nginx.conf:/app/nginx/nginx.conf
+      - ./nginx/:/app/nginx/
       - ./config.yml:/app/config.yml
-    develop:
-      # TODO remove this
-      # Create a `watch` configuration to update the app
-      # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
-      watch:
-        # Sync the working directory with the `/app` directory in the container
-        - action: sync
-          path: .
-          target: /app
-          # Exclude the project virtual environment — it could be for a
-          # different platform in the container
-          ignore:
-            - .venv/
-
-        # Rebuild the image if dependencies change by checking uv.lock
-        - action: rebuild
-          path: ./uv.lock
   nginx:
     image: nginx:latest
     container_name: mw-orchestrator-nginx
     ports: [ "80:80" ]
     networks: [ orchestrator-net ]
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+      - ./nginx/conf.d/:/etc/nginx/conf.d/:ro
     depends_on:
       orchestrator:
         condition: service_healthy

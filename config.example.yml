@@ -7,6 +7,7 @@ kits:
     # If you're not using .localhost, you need to modify /etc/hosts
     domain: main.localhost
     # (Optional) The port to listen on.
+    # Defaults to 80
     port: 80
     # (Optional) The name of the docker network.
     # Defaults to "{kit}_mw"
@@ -14,3 +15,6 @@ kits:
     # (Optional) The internal host nginx should connect to.
     # Defaults to "{kit}-mediawiki-web-1"
     internal-host: "main-mediawiki-web-1"
+    # (Optional) Whether nginx should initially connect to this kit.
+    # Defaults to false
+    connect-initially: false
