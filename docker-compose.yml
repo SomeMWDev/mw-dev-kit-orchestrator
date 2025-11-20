@@ -6,6 +6,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./nginx/nginx.conf:/app/nginx/nginx.conf
+      - ./config.yml:/app/config.yml
     develop:
       # TODO remove this
       # Create a `watch` configuration to update the app
