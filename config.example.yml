@@ -9,12 +9,9 @@ kits:
     # (Optional) The port to listen on.
     # Defaults to 80
     port: 80
-    # (Optional) The name of the docker network.
-    # Defaults to "{kit}_mw"
-    network: main_mw
-    # (Optional) The internal host nginx should connect to.
+    # (Optional) The name of the web container nginx should connect to.
     # Defaults to "{kit}-mediawiki-web-1"
-    internal-host: "main-mediawiki-web-1"
+    web-container: "main-mediawiki-web-1"
     # (Optional) Whether nginx should initially connect to this kit.
     # Defaults to false
     connect-initially: false

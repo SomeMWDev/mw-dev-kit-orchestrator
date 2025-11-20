@@ -1,0 +1,24 @@
+from dataclasses import dataclass
+
+from docker import DockerClient
+from docker.models.containers import Container
+from docker.models.networks import Network
+
+
+@dataclass
+class MWDevKit:
+    name: str
+    domain: str
+    port: int
+    web_container: str
+    # TODO can we remove this?
+    connect_initially: bool
+
+
+@dataclass
+class OrchestratorState:
+    dashboard_domain: str
+    docker_client: DockerClient
+    docker_network: Network
+    docker_nginx_container: Container
+    kits: dict[str, MWDevKit]

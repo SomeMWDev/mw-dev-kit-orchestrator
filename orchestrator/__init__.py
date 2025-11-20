@@ -3,28 +3,37 @@ from contextlib import asynccontextmanager
 import docker
 import docker.errors
 from fastapi import FastAPI
+from starlette.requests import Request
 from starlette.staticfiles import StaticFiles
 
-from orchestrator.config import load_config
+from orchestrator.config import load_config, load_kits
 from orchestrator.nginx import regenerate_nginx_config
+from orchestrator.models import OrchestratorState
+from orchestrator.utils import create_docker_network
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.config = load_config()
-    app.docker_client = docker.from_env()
-    try:
-        app.docker_network = app.docker_client.networks.get("mw-orchestrator-net")
-    except docker.errors.APIError:
-        app.docker_network = app.docker_client.networks.create("mw-orchestrator-net")
+    conf = load_config()
+    docker_client = docker.from_env()
 
-    app.nginx_container = app.docker_client.containers.get("mw-orchestrator-nginx")
-    app.docker_network.connect(app.nginx_container)
-    regenerate_nginx_config(app.config, app.docker_client, app.docker_network, app.nginx_container, reload=False)
+    app.state.state = state = OrchestratorState(
+        dashboard_domain=conf.get("dashboard_domain", "wikis.localhost"),
+        docker_client=docker_client,
+        docker_network=create_docker_network(docker_client),
+        docker_nginx_container=docker_client.containers.get("mw-orchestrator-nginx"),
+        kits=load_kits(conf)
+    )
+
+    state.docker_network.connect(state.docker_nginx_container)
+    regenerate_nginx_config(state, reload=False)
 
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+def get_state(request: Request) -> OrchestratorState:
+    return request.app.state.state
 
 @app.get("/health")
 async def health():
