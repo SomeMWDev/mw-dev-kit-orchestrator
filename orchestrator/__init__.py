@@ -6,7 +6,6 @@ import docker.errors
 from fastapi import FastAPI, Depends
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
-from starlette.staticfiles import StaticFiles
 
 from orchestrator.config import load_config, load_kits
 from orchestrator.events import handle_docker_events
@@ -62,8 +61,6 @@ async def kits(
         state: OrchestratorState = Depends(get_state)
 ):
     return state.kits
-
-app.mount("/", StaticFiles(directory="orchestrator/static"), name="static")
 
 async def event_loop(state: OrchestratorState):
     print("Handling events...")
