@@ -30,6 +30,7 @@ services:
     networks: [ mw-orchestrator-internal ]
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/:ro
+      - ./nginx/static/:/static/:ro
     depends_on:
       orchestrator:
         condition: service_healthy

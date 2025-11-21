@@ -36,12 +36,11 @@ server {{
     return conf
 
 def build_upstream(kit: MWDevKit, connect: bool) -> str:
-    # use real server if container is online, otherwise redirect to port 9 to discard
-    upstream = f"server {kit.web_container}:8080;" if connect else "server 127.0.0.1:9;"
-    upstream_name = f"mediawiki-{kit.name}"
-    return f"""
+    if connect:
+        upstream_name = f"mediawiki-{kit.name}"
+        return f"""
 upstream {upstream_name} {{
-    {upstream}
+    server {kit.web_container}:8080;
 }}
 
 server {{
@@ -54,6 +53,19 @@ server {{
         proxy_set_header X-Real-IP $remote_addr;
     }}
 }}"""
+    else:
+        return f"""
+server {{
+    listen {kit.port};
+    server_name {kit.domain};
+    
+    location / {{
+        root /static;
+        index offline.html;
+    }}
+}}
+"""
+
 
 def build_upstreams(state: OrchestratorState) -> dict[str, str]:
     upstreams = {}
