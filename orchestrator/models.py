@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime, UTC
 from enum import Enum
 
 from docker import DockerClient
@@ -34,3 +35,7 @@ class OrchestratorState:
     docker_network: Network
     docker_nginx_container: Container
     kits: dict[str, MWDevKit]
+    last_polling_timestamp: datetime
+
+    def update_polling_timestamp(self):
+        self.last_polling_timestamp = datetime.now(UTC)

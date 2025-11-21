@@ -15,3 +15,6 @@ kits:
     # (Optional) Whether nginx should initially connect to this kit.
     # Defaults to false
     connect-initially: false
+# (Optional) The refresh interval in seconds for docker event polling.
+# Defaults to 5
+docker-event-refresh-interval: 5
