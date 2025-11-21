@@ -1,6 +1,7 @@
 from docker.types import CancellableStream
 
 from orchestrator.models import OrchestratorState, KitStatus
+from orchestrator.nginx import regenerate_nginx_config
 
 
 def handle_docker_events(state: OrchestratorState):
@@ -8,12 +9,22 @@ def handle_docker_events(state: OrchestratorState):
         since=state.last_polling_timestamp,
         decode=True,
     )
+    state.update_polling_timestamp()
 
+    state_changed = False
     for event in events:
-        event_type = event["Type"]
+        event_type = event.get("Type")
         if event_type != "container":
             continue
-        name = event["Actor"]["Attributes"]["name"]
+        actor = event.get("Actor")
+        if actor is None:
+            continue
+        attributes = event.get("Attributes")
+        if attributes is None:
+            continue
+        name = attributes.get("name")
+        if name is None:
+            continue
         associated_kit = None
         for kit in state.kits.values():
             if kit.web_container == name:
@@ -23,12 +34,15 @@ def handle_docker_events(state: OrchestratorState):
             if not name.startswith("mw-orchestrator"):
                 print(f"Couldn't find a kit for {name}")
             continue
-        action = event["Action"]
+        action = event.get("Action")
         if action == "stop":
             associated_kit.status = KitStatus.EXITED
+            state_changed = True
             print(f"{name} stopped")
         elif action == "start":
             associated_kit.status = KitStatus.RUNNING
+            state_changed = True
             print(f"{name} started")
 
-    state.update_polling_timestamp()
+    if state_changed:
+        regenerate_nginx_config(state, reload=True)
