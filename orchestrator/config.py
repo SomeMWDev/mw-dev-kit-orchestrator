@@ -14,7 +14,7 @@ def load_kits(config, docker_client: DockerClient) -> dict[str, MWDevKit]:
     for kit_name, data in config["kits"].items():
         web_container = data.get("web-container", f"{kit_name}-mediawiki-web-1")
         try:
-            status = docker_client.containers.get(web_container).status
+            status = KitStatus(docker_client.containers.get(web_container).status)
             print(f"Web container {web_container} is {status}")
         except docker.errors.NotFound:
             print(f"Web container {web_container} not found")

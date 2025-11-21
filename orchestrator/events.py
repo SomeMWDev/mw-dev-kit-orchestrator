@@ -12,7 +12,6 @@ def handle_docker_events(state: OrchestratorState):
         decode=True,
     )
 
-    state_changed = False
     for event in events:
         event_type = event.get("Type")
         if event_type != "container":
@@ -38,13 +37,11 @@ def handle_docker_events(state: OrchestratorState):
             continue
         action = event.get("Action")
         if action == "stop":
-            associated_kit.status = KitStatus.EXITED
-            state_changed = True
             print(f"{name} stopped")
+            associated_kit.status = KitStatus.EXITED
+            regenerate_nginx_config(state, reload=True)
         elif action == "start":
-            associated_kit.status = KitStatus.RUNNING
-            state_changed = True
             print(f"{name} started")
+            associated_kit.status = KitStatus.RUNNING
+            regenerate_nginx_config(state, reload=True)
 
-    if state_changed:
-        regenerate_nginx_config(state, reload=True)

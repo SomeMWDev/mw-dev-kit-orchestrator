@@ -58,7 +58,7 @@ server {{
 def build_upstreams(state: OrchestratorState) -> dict[str, str]:
     upstreams = {}
     for kit in state.kits.values():
-        is_online = kit.connect_initially or (kit.status in [KitStatus.RUNNING.value, KitStatus.HEALTHY.value])
+        is_online = kit.connect_initially or kit.status in [KitStatus.RUNNING, KitStatus.HEALTHY]
         upstreams[kit.name] = build_upstream(kit, is_online)
         if is_online:
             container = state.docker_client.containers.get(kit.web_container)
