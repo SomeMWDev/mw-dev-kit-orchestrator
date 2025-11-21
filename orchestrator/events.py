@@ -1,3 +1,5 @@
+import datetime
+
 from docker.types import CancellableStream
 
 from orchestrator.models import OrchestratorState, KitStatus
@@ -6,10 +8,9 @@ from orchestrator.nginx import regenerate_nginx_config
 
 def handle_docker_events(state: OrchestratorState):
     events: CancellableStream = state.docker_client.events(
-        since=state.last_polling_timestamp,
+        since=datetime.datetime.now(datetime.UTC),
         decode=True,
     )
-    state.update_polling_timestamp()
 
     state_changed = False
     for event in events:
@@ -19,12 +20,13 @@ def handle_docker_events(state: OrchestratorState):
         actor = event.get("Actor")
         if actor is None:
             continue
-        attributes = event.get("Attributes")
+        attributes = actor.get("Attributes")
         if attributes is None:
             continue
         name = attributes.get("name")
         if name is None:
             continue
+
         associated_kit = None
         for kit in state.kits.values():
             if kit.web_container == name:

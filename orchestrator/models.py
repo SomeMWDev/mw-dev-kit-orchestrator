@@ -35,7 +35,3 @@ class OrchestratorState:
     docker_network: Network
     docker_nginx_container: Container
     kits: dict[str, MWDevKit]
-    last_polling_timestamp: datetime
-
-    def update_polling_timestamp(self):
-        self.last_polling_timestamp = datetime.now(UTC)

@@ -1,10 +1,9 @@
+import asyncio
 from contextlib import asynccontextmanager
-from datetime import datetime, UTC
 
 import docker
 import docker.errors
 from fastapi import FastAPI, Depends
-from fastapi_utils.tasks import repeat_every
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.staticfiles import StaticFiles
@@ -27,8 +26,7 @@ async def lifespan(app: FastAPI):
         docker_client=docker_client,
         docker_network=create_docker_network(docker_client),
         docker_nginx_container=docker_client.containers.get("mw-orchestrator-nginx"),
-        kits=load_kits(conf, docker_client),
-        last_polling_timestamp=datetime.now(UTC)
+        kits=load_kits(conf, docker_client)
     )
 
     try:
@@ -37,10 +35,7 @@ async def lifespan(app: FastAPI):
         # nginx is already connected - this should only happen when using hot reload
         print("Failed to connect nginx container to network")
     regenerate_nginx_config(state, reload=False)
-    state.update_polling_timestamp()
-
-    await handle_events()
-
+    asyncio.create_task(event_loop(state))
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -70,7 +65,7 @@ async def kits(
 
 app.mount("/", StaticFiles(directory="orchestrator/static"), name="static")
 
-# TODO configurable interval
-@repeat_every(seconds = conf.get("docker-event-refresh-interval", 5))
-def handle_events():
-    handle_docker_events(app.state.state)
+async def event_loop(state: OrchestratorState):
+    print("Handling events...")
+    loop = asyncio.get_running_loop()
+    await loop.run_in_executor(None, handle_docker_events, state)
