@@ -73,6 +73,8 @@ def build_upstreams(state: OrchestratorState) -> dict[str, str]:
 
 def regenerate_nginx_config(state: OrchestratorState, reload: bool):
     conf_folder = Path("nginx/conf.d")
+    if not conf_folder.exists():
+        conf_folder.mkdir()
     for file in conf_folder.iterdir():
         if file.is_file():
             file.unlink()
