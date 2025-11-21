@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import Home from "./components/Home.vue";
-import {computed, ref} from "vue";
+import {type Component, computed, ref} from "vue";
 import NotFound from "./components/NotFound.vue";
 import Nav from "./components/Nav.vue";
 
-const routes = {
+const routes: Record<string, Component> = {
   '/': Home,
+	'test': Home,
 }
 
 const currentPath = ref(window.location.hash)

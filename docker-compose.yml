@@ -34,6 +34,20 @@ services:
     depends_on:
       orchestrator:
         condition: service_healthy
+      dashboard:
+        condition: service_started
+  dashboard:
+    container_name: mw-orchestrator-dashboard
+    build: ./dashboard/
+    networks: [ mw-orchestrator-internal ]
+    develop:
+      watch:
+        # Run "npx vite build --watch" in the dashboard folder
+        - action: sync
+          path: ./dashboard/dist/
+          target: /app/dist
+        - action: rebuild
+          path: ./dashboard/package-lock.json
 
 networks:
   mw-orchestrator-internal:

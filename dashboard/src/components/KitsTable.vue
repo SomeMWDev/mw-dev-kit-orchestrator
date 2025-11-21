@@ -29,9 +29,9 @@ const getStatus = (status: string) => {
 }
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
-const start = (name: string) => {}
-const stop = (name: string) => {}
-const restart = (name: string) => {}
+const start = (_: string) => {}
+const stop = (_: string) => {}
+const restart = (_: string) => {}
 </script>
 
 <template>
@@ -63,7 +63,7 @@ const restart = (name: string) => {}
             aria-label="Start"
             @click="start( row.name )"
             action="progressive"
-            v-if="row.status === 'exited'"
+            v-if="row.status === 'exited' || row.status === 'unknown'"
         ><cdx-icon :icon="cdxIconPlay" /></cdx-button>
         <cdx-button
             weight="quiet"
