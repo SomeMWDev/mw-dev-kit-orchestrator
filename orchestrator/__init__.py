@@ -31,7 +31,11 @@ async def lifespan(app: FastAPI):
         last_polling_timestamp=datetime.now(UTC)
     )
 
-    state.docker_network.connect(state.docker_nginx_container)
+    try:
+        state.docker_network.connect(state.docker_nginx_container)
+    except docker.errors.APIError:
+        # nginx is already connected - this should only happen when using hot reload
+        print("Failed to connect nginx container to network")
     regenerate_nginx_config(state, reload=False)
     state.update_polling_timestamp()
 
